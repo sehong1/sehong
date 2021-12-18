@@ -2,10 +2,10 @@ import pyupbit
 import pandas as pd
 import time
 
-
 access = "lszD4xAHjFxO5wG2PpjzPGr43t0aTlPmOCbNM4ZV"
 secret = "BfhPxYHUyWB3pkYrisK9gTmsf8vbdLcHS0NbElla"
 upbit = pyupbit.Upbit(access, secret)
+
 
 def get_cci():
     df = pyupbit.get_ohlcv("KRW-BTC", interval="minute5")
@@ -14,6 +14,7 @@ def get_cci():
     mad = pt.rolling(20).apply(lambda x: pd.Series(x).mad())
     cci = (pt - sma) / (0.015 * mad)
     return cci[-1]
+
 
 def get_balance(ticker):
     """잔고 조회"""
@@ -25,6 +26,7 @@ def get_balance(ticker):
             else:
                 return 0
     return 0
+
 
 a = []
 is_ms = 0
@@ -42,11 +44,11 @@ while True:
             a.__delitem__(0)
             delta = a[-1] - a[-2]
             print(a, delta)
-            if is_ms == 0 and a[-2] < -100 < a[-1]:
+            if is_ms == 0 and a[-3] < -100 and a[-2] < -100 < a[-1]:
                 krw = get_balance("KRW")
                 upbit.buy_market_order("KRW-BTC", krw * 0.9995)
                 is_ms = 1
-            if is_ms == 1 and a[-2] > 100 and a[-1] < 100:
+            if is_ms == 1 and a[-3] > 100 and a[-2] > 100 and a[-1] < 100:
                 btc = get_balance("BTC")
                 upbit.sell_market_order("KRW-BTC", btc * 0.9995)
                 is_ms = 0
@@ -54,4 +56,3 @@ while True:
     except Exception as e:
         print(e)
         time.sleep(1)
-
