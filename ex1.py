@@ -44,11 +44,11 @@ while True:
             a.__delitem__(0)
             delta = a[-1] - a[-2]
             print(a, delta)
-            if is_ms == 0 and a[-3] < -100 < a[-2] and -100 < a[-1]:
+            if is_ms == 0 and sum(a[1:4])/4 < -100 and -100 < a[-1]:
                 krw = get_balance("KRW")
                 upbit.buy_market_order("KRW-BTC", krw * 0.9995)
                 is_ms = 1
-            if is_ms == 1 and a[-3] > 100 > a[-2] and a[-1] < 100:
+            if is_ms == 1 and sum(a[1:4])/4 > 100 and a[-1] < 100:
                 btc = get_balance("BTC")
                 upbit.sell_market_order("KRW-BTC", btc * 0.9995)
                 is_ms = 0
