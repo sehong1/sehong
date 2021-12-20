@@ -13,7 +13,7 @@ def get_cci():
     sma = pt.rolling(20).mean()
     mad = pt.rolling(20).apply(lambda x: pd.Series(x).mad())
     cci = (pt - sma) / (0.015 * mad)
-    return cci[-1]
+    return cci[-3:]
 
 
 def get_balance(ticker):
@@ -28,29 +28,22 @@ def get_balance(ticker):
     return 0
 
 
-a = []
-is_ms = 0
-
 while True:
     try:
         temp = get_cci().astype(float)
-        time.sleep(300)
+        time.sleep(1)
         if temp is not None:
-            a.append(temp)
+            a = temp
         else:
             pass
-
-        if len(a) > 5:
-            a.__delitem__(0)
-            if is_ms == 0 and a[-3] < -100 < a[-2]:
-                krw = get_balance("KRW")
+        if sum(a[0:2]) / 2 < -100 < a[-1]:
+            krw = get_balance("KRW")
+            if krw > 5000:
                 upbit.buy_market_order("KRW-BTC", krw * 0.9995)
-                is_ms = 1
-            if is_ms == 1 and a[-3] > 100 and a[-2] < 100:
-                btc = get_balance("BTC")
+        if sum(a[0:2]) / 2 > 100 > a[-2]:
+            btc = get_balance("BTC")
+            if btc > 0.00008:
                 upbit.sell_market_order("KRW-BTC", btc * 0.9995)
-                is_ms = 0
-
     except Exception as e:
         print(e)
         time.sleep(1)
