@@ -28,6 +28,8 @@ def get_balance(ticker):
     return 0
 
 
+buy_count = 0
+
 while True:
     try:
         time.sleep(1)
@@ -36,14 +38,17 @@ while True:
             a = temp
         else:
             pass
-        if -150 > a[-1]:
+        if a[-1] < -150:
             krw = get_balance("KRW")
-            if krw > 5000:
+            if krw > 5000 and buy_count != 1:
                 upbit.buy_market_order("KRW-BTC", krw * 0.333)
-        if 150 < a[-1]:
+                buy_count = 1
+        if a[-1] > 150:
             btc = get_balance("BTC")
             if btc > 0.00008:
                 upbit.sell_market_order("KRW-BTC", btc * 0.333)
+        if a[-2] > -100 and buy_count == 1:
+            buy_count = 0
     except Exception as e:
         print(e)
         time.sleep(1)
